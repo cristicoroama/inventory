@@ -1,0 +1,46 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}Edit permissions · {{ user_obj.username }}{% endblock %}
+
+{% block content %}
+<div class="page-section">
+    <h1 class="page-title">Edit permissions</h1>
+    <p class="page-subtitle">
+        Manage role and edit locations for <strong>{{ user_obj.username }}</strong>.
+    </p>
+
+    <div class="card" style="max-width: 480px;">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="{{ form.role.id_for_label }}">Account type</label>
+                {{ form.role }}
+                {% if form.role.errors %}
+                    <div class="form-error">{{ form.role.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.allowed_locations.id_for_label }}">Allowed locations</label>
+                {{ form.allowed_locations }}
+                {% if form.allowed_locations.help_text %}
+                    <p class="form-help">{{ form.allowed_locations.help_text }}</p>
+                {% endif %}
+                {% if form.allowed_locations.errors %}
+                    <div class="form-error">{{ form.allowed_locations.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    Save changes
+                </button>
+                <a href="{% url 'user_detail' user_obj.pk %}" class="btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

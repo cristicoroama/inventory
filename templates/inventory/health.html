@@ -1,0 +1,99 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}System health - Inventory{% endblock %}
+
+{% block content %}
+<h1 class="page-title">System health</h1>
+
+<div class="cards-grid">
+    <!-- Warranty expired -->
+    <section class="card">
+        <h2 class="card-title">Warranty expired</h2>
+        {% if expired %}
+            <ul class="health-list">
+                {% for d in expired %}
+                    <li>
+                        <strong>{{ d.hostname }}</strong>
+                        <span class="muted">– {{ d.warranty_expiry|date:"MMM d, Y" }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">No expired warranties.</p>
+        {% endif %}
+    </section>
+
+    <!-- Warranty expiring in 90 days -->
+    <section class="card">
+        <h2 class="card-title">Warranty expiring (90 days)</h2>
+        {% if expiring_90 %}
+            <ul class="health-list">
+                {% for d in expiring_90 %}
+                    <li>
+                        <strong>{{ d.hostname }}</strong>
+                        <span class="muted">– {{ d.warranty_expiry|date:"MMM d, Y" }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">No warranties expiring in the next 90 days.</p>
+        {% endif %}
+    </section>
+
+    <!-- No user -->
+    <section class="card">
+        <h2 class="card-title">No user</h2>
+        {% if no_user %}
+            <ul class="health-list">
+                {% for d in no_user %}
+                    <li><strong>{{ d.hostname }}</strong> – <span class="muted">no assigned user</span></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">All devices have users.</p>
+        {% endif %}
+    </section>
+
+    <!-- No department -->
+    <section class="card">
+        <h2 class="card-title">No department</h2>
+        {% if no_department %}
+            <ul class="health-list">
+                {% for d in no_department %}
+                    <li><strong>{{ d.hostname }}</strong> – <span class="muted">no department</span></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">All devices have departments.</p>
+        {% endif %}
+    </section>
+
+    <!-- No IP -->
+    <section class="card">
+        <h2 class="card-title">No IP</h2>
+        {% if no_ip %}
+            <ul class="health-list">
+                {% for d in no_ip %}
+                    <li><strong>{{ d.hostname }}</strong> – <span class="muted">no IP address</span></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">All devices have IPs.</p>
+        {% endif %}
+    </section>
+
+    <!-- No OS -->
+    <section class="card">
+        <h2 class="card-title">No OS</h2>
+        {% if no_os %}
+            <ul class="health-list">
+                {% for d in no_os %}
+                    <li><strong>{{ d.hostname }}</strong> – <span class="muted">no OS defined</span></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">All devices have OS defined.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

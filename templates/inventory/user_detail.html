@@ -1,0 +1,104 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}{{ user_obj.username }} - User{% endblock %}
+
+{% block content %}
+
+<h3 class="mb-3">{{ user_obj.username }}</h3>
+
+{# buton de editare permisiuni – doar pentru admin / superuser #}
+{% if request.user.is_authenticated and request.user.is_superuser or request.user.role == 'admin' %}
+  <a href="{% url 'edit_user_permissions' user_obj.pk %}" class="btn-primary">
+    Edit permissions
+  </a>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card card-soft h-100">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small mb-3">User info</h6>
+        <p class="mb-1 small">
+          <span class="text-muted">Username:</span>
+          <strong>{{ user_obj.username }}</strong>
+        </p>
+        <p class="mb-1 small">
+          <span class="text-muted">Full name:</span>
+          {{ user_obj.full_name }}
+        </p>
+        <p class="mb-1 small">
+          <span class="text-muted">Department:</span>
+          {{ user_obj.departament }}
+        </p>
+        <p class="mb-1 small">
+          <span class="text-muted">Total session time:</span>
+          {{ total_seconds }} s
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="card card-soft h-100">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small mb-3">Devices</h6>
+        <ul class="list-unstyled small mb-0">
+          {% for d in devices %}
+            <li class="mb-1">
+              <a href="{% url 'device_detail' d.pk %}" class="text-soft-link fw-semibold">
+                {{ d.hostname }}
+              </a>
+              – {{ d.get_device_type_display }} – {{ d.departament }}
+            </li>
+          {% empty %}
+            <li>No devices assigned.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h5 class="mb-2">Recent sessions</h5>
+<div class="card card-soft">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0 small">
+        <thead class="text-muted">
+          <tr>
+            <th>Device</th>
+            <th>Login</th>
+            <th>Logout</th>
+            <th>IP</th>
+            <th>Duration (s)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in sessions %}
+          <tr>
+            <td>
+              {% if s.device %}
+                <a href="{% url 'device_detail' s.device.pk %}" class="text-soft-link">
+                  {{ s.device.hostname }}
+                </a>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>{{ s.login_time }}</td>
+            <td>{{ s.logout_time }}</td>
+            <td>{{ s.ip_address }}</td>
+            <td>{{ s.duration_seconds }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-muted py-3">No sessions.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

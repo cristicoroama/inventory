@@ -1,0 +1,68 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}Live feed - Inventory{% endblock %}
+
+{% block content %}
+
+<h3 class="mb-3">Live activity feed</h3>
+<p class="text-muted small mb-3">Last sessions, auto-refreshing every 5 seconds.</p>
+
+<div class="card card-soft">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0 small" id="feedTable">
+        <thead class="text-muted">
+          <tr>
+            <th>Device</th>
+            <th>User</th>
+            <th>Login</th>
+            <th>Logout</th>
+            <th>IP</th>
+            <th>Duration (s)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- umplem din JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function() {
+    const tbody = document.querySelector('#feedTable tbody');
+    if (!tbody) return;
+
+    async function loadFeed() {
+      try {
+        const resp = await fetch("{% url 'activity_feed_api' %}");
+        if (!resp.ok) return;
+        const data = await resp.json();
+
+        tbody.innerHTML = "";
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${row.device || ""}</td>
+            <td>${row.user || ""}</td>
+            <td>${row.login || ""}</td>
+            <td>${row.logout || ""}</td>
+            <td>${row.ip || ""}</td>
+            <td>${row.duration ?? ""}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    loadFeed();
+    setInterval(loadFeed, 5000);
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends "inventory/base.html" %}
+
+{% block page_title %}Activity (last 30 days){% endblock %}
+
+{% block content %}
+<div class="page-section">
+  <h1 class="page-title">Activity (last 30 days)</h1>
+  <p class="page-subtitle">
+    Sessions by department, user and device.
+  </p>
+
+  <div class="grid-3">
+
+    <div class="card mb-4">
+      <div class="card-header">Top departments</div>
+      <div class="card-body">
+        <table class="table table-compact">
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>Sessions</th>
+              <th>Hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in top_departments %}
+              <tr>
+                <td>{{ row.department }}</td>
+                <td>{{ row.sessions }}</td>
+                <td>{{ row.hours }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3" class="text-muted">No data.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <div class="card mb-4">
+      <div class="card-header">Top users</div>
+      <div class="card-body">
+        <table class="table table-compact">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Sessions</th>
+              <th>Hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in top_users %}
+              <tr>
+                <td>{{ row.user }}</td>
+                <td>{{ row.sessions }}</td>
+                <td>{{ row.hours }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3" class="text-muted">No data.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <div class="card mb-4">
+      <div class="card-header">Top devices</div>
+      <div class="card-body">
+        <table class="table table-compact">
+          <thead>
+            <tr>
+              <th>Hostname</th>
+              <th>Sessions</th>
+              <th>Hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in top_devices %}
+              <tr>
+                <td>{{ row.device }}</td>
+                <td>{{ row.sessions }}</td>
+                <td>{{ row.hours }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3" class="text-muted">No data.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="card">
+    <div class="card-header">
+      Inactive devices (no sessions in last 30 days)
+    </div>
+    <div class="card-body">
+      {% if inactive_devices %}
+        <ul class="list-unstyled">
+          {% for d in inactive_devices %}
+            <li>
+              {{ d.hostname }} –
+              {{ d.departament.name|default:"None" }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted mb-0">No inactive devices.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}My account · Inventory{% endblock %}
+
+{% block content %}
+<div class="page-section">
+    <h1 class="page-title">My account</h1>
+    <p class="page-subtitle">Details about your account and access rights.</p>
+
+    <div class="card-grid-2">
+        <section class="card">
+            <h2 class="card-title">Account info</h2>
+
+            <p><strong>Username:</strong> {{ user_obj.username }}</p>
+            {% if user_obj.email %}
+                <p><strong>Email:</strong> {{ user_obj.email }}</p>
+            {% endif %}
+            <p><strong>Account type:</strong> {{ account_type }}</p>
+
+            {% if user_obj.departament %}
+                <p><strong>Department:</strong> {{ user_obj.departament.name }}</p>
+            {% endif %}
+        </section>
+
+        <section class="card">
+            <h2 class="card-title">Permissions</h2>
+            <p>{{ edit_rights }}</p>
+
+            <ul class="bullet-list">
+                {% if account_type == "Admin" %}
+                    <li>You can view and edit all devices in the inventory.</li>
+                    <li>You can manage users and global settings.</li>
+                {% else %}
+                    <li>You can browse and view inventory data.</li>
+                    <li>You cannot change device information.</li>
+                {% endif %}
+            </ul>
+        </section>
+    </div>
+
+    <section class="card" style="margin-top: 2rem;">
+        <h2 class="card-title">Locations</h2>
+
+        {% if locations %}
+            <p><strong>Locations where you are allowed to edit:</strong></p>
+            <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem;">
+                {% for loc in locations %}
+                    <span class="user-pill user-pill-locations">{{ loc }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>This account has no edit locations configured.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

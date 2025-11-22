@@ -1,0 +1,234 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}{{ device.hostname }} – Device details{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-breadcrumb">
+        {{ device.get_device_type_display }} •
+        {% if device.departament %}
+            {{ device.departament.name }}
+        {% else %}
+            No department
+        {% endif %}
+    </div>
+
+    <h1 class="page-title">{{ device.hostname|upper }}</h1>
+
+    <div class="device-header-chips">
+
+        <span class="device-chip device-chip--status device-chip--status-{{ device.status|lower }}">
+            {{ device.get_status_display }}
+        </span>
+
+
+        <span class="device-chip">
+            <span class="device-chip-label">Owner</span>
+            <span class="device-chip-value">
+                {% if device.assigned_user %}
+                    {{ device.assigned_user.username }}
+                {% else %}
+                    Unassigned
+                {% endif %}
+            </span>
+        </span>
+
+
+        <span class="device-chip">
+            <span class="device-chip-label">Location</span>
+            <span class="device-chip-value">
+                {% if device.location %}
+                    {{ device.location }}
+                {% else %}
+                    —
+                {% endif %}
+            </span>
+        </span>
+
+
+        <a href="{% url 'device_edit' device.pk %}"
+           class="device-chip device-chip--button">
+            <span class="device-chip-icon">✏</span>
+            <span class="device-chip-value">Edit device</span>
+        </a>
+    </div>
+</div>
+
+<div class="cards-column">
+
+
+    <section class="card">
+        <h2 class="card-title">Hardware &amp; lifecycle</h2>
+        <p class="card-subtitle">Static details about this asset.</p>
+
+        <p><span class="detail-label">Type:</span> {{ device.get_device_type_display }}</p>
+        <p>
+            <span class="detail-label">Department:</span>
+            {% if device.departament %}
+                {{ device.departament.name }}
+            {% else %}
+                None
+            {% endif %}
+        </p>
+        <p>
+            <span class="detail-label">Owner:</span>
+            {% if device.assigned_user %}
+                {{ device.assigned_user.username }}
+            {% else %}
+                Unassigned
+            {% endif %}
+        </p>
+        <p>
+            <span class="detail-label">Location:</span>
+            {% if device.location %}
+                {{ device.location }}
+            {% else %}
+                —
+            {% endif %}
+        </p>
+        <p>
+            <span class="detail-label">Operating system:</span>
+            {% if device.os %}
+                {{ device.os }}
+            {% else %}
+                —
+            {% endif %}
+        </p>
+        <p>
+            <span class="detail-label">Serial number:</span>
+            {% if device.serial_number %}
+                {{ device.serial_number }}
+            {% else %}
+                —
+            {% endif %}
+        </p>
+        <p>
+            <span class="detail-label">Purchase date:</span>
+            {% if device.purchase_date %}
+                {{ device.purchase_date|date:"M d, Y" }}
+            {% else %}
+                —
+            {% endif %}
+        </p>
+        <p>
+            <span class="detail-label">Warranty expiry:</span>
+            {% if device.warranty_expiry %}
+                {{ device.warranty_expiry|date:"M d, Y" }}
+            {% else %}
+                —
+            {% endif %}
+        </p>
+        <p>
+            <span class="detail-label">Lifecycle:</span>
+            {% if device.warranty_expiry %}
+                {% if device.warranty_expiry >= today %}
+                    Under warranty
+                {% else %}
+                    Warranty expired
+                {% endif %}
+            {% else %}
+                N/A
+            {% endif %}
+        </p>
+    </section>
+
+
+    <section class="card">
+        <h2 class="card-title">Network &amp; identity</h2>
+        <p class="card-subtitle">How this device shows up on the network.</p>
+
+        <p>
+            <span class="detail-label">IP address:</span>
+            {% if device.ip_address %}
+                {{ device.ip_address }}
+            {% else %}
+                —
+            {% endif %}
+        </p>
+        <p>
+            <span class="detail-label">MAC address:</span>
+            {% if device.mac_address %}
+                {{ device.mac_address }}
+            {% else %}
+                —
+            {% endif %}
+        </p>
+        <p>
+            <span class="detail-label">Hostname:</span> {{ device.hostname }}
+        </p>
+        <p>
+            <span class="detail-label">Lifecycle:</span>
+            {% if device.warranty_expiry %}
+                {% if device.warranty_expiry >= today %}
+                    Under warranty
+                {% else %}
+                    Warranty expired
+                {% endif %}
+            {% else %}
+                N/A
+            {% endif %}
+        </p>
+    </section>
+
+
+    <section class="card">
+        <h2 class="card-title">Recent sessions</h2>
+        <p class="card-subtitle">Last 4 logins recorded for this device.</p>
+
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Login</th>
+                        <th>Logout</th>
+                        <th>IP</th>
+                        <th>Duration (s)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if sessions %}
+                        {% for s in sessions|slice:":4" %}
+                            <tr>
+                                <td>
+                                    {% if s.user %}
+                                        {{ s.user.username }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>{{ s.login_time|date:"Y-m-d H:i:s" }}</td>
+                                <td>
+                                    {% if s.logout_time %}
+                                        {{ s.logout_time|date:"Y-m-d H:i:s" }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if s.ip_address %}
+                                        {{ s.ip_address }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if s.duration_seconds %}
+                                        {{ s.duration_seconds }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5">No sessions recorded for this device.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

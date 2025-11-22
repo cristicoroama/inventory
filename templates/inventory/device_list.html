@@ -1,0 +1,332 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}Devices{% endblock %}
+
+{% block content %}
+
+<style>
+
+  .devices-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+  }
+  .devices-header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+  }
+  .devices-header-title h1 {
+      font-size: 1.4rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin: 0;
+  }
+  .devices-header-title p {
+      margin: 0;
+      font-size: 0.85rem;
+      opacity: .75;
+  }
+  .devices-header-actions {
+      display: flex;
+      gap: .6rem;
+      align-items: center;
+  }
+  .link-ghost {
+      font-size: 0.85rem;
+      text-decoration: underline;
+      opacity: .8;
+  }
+  .btn-primary {
+      border-radius: 999px;
+      padding: 0.45rem 1.1rem;
+      font-size: 0.85rem;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(90deg,#ffb347,#ff6fd8);
+      color: #140022;
+      font-weight: 600;
+      box-shadow: 0 0 25px rgba(255,111,216,.35);
+      transition: transform .15s ease-out, box-shadow .15s ease-out, filter .15s;
+      white-space: nowrap;
+  }
+  .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 30px rgba(255,111,216,.55);
+      filter: brightness(1.03);
+  }
+
+  .device-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem 1.4rem;
+      margin-bottom: 1.4rem;
+  }
+  .device-filters .field {
+      min-width: 180px;
+      display: flex;
+      flex-direction: column;
+      font-size: 0.8rem;
+  }
+  .device-filters label {
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 0.25rem;
+      opacity: .7;
+      font-weight: 600;
+  }
+  .dark-input {
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.08), rgba(10,0,30,0.96));
+      padding: 0.4rem 0.9rem;
+      color: #fff;
+      font-size: 0.85rem;
+      transition: border-color .18s ease-out, box-shadow .18s ease-out, background .18s;
+  }
+  .dark-input::placeholder {
+      color: rgba(255,255,255,0.45);
+  }
+  .dark-input:focus {
+      outline: none;
+      border-color: rgba(193,139,255,0.9);
+      box-shadow: 0 0 0 1px rgba(193,139,255,0.55);
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.14), rgba(10,0,30,1));
+  }
+  .filter-actions {
+      display: flex;
+      align-items: flex-end;
+  }
+  .btn-secondary {
+      border-radius: 999px;
+      padding: 0.38rem 1.0rem;
+      font-size: 0.8rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+      cursor: pointer;
+      transition: background .15s, transform .12s;
+      white-space: nowrap;
+  }
+  .btn-secondary:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-1px);
+  }
+
+  .card-xl {
+      border-radius: 24px;
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.05), rgba(5,0,25,0.98));
+      box-shadow: 0 32px 80px rgba(0,0,0,0.8);
+      padding: 1.4rem 1.6rem 1.6rem;
+  }
+
+  .table-wrapper {
+      margin-top: 0.4rem;
+      overflow-x: auto;
+  }
+
+  .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+  }
+  .data-table thead tr {
+      text-align: left;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+  }
+  .data-table thead th {
+      padding: 0.5rem 0.4rem;
+      opacity: .75;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .data-table tbody td {
+      padding: 0.55rem 0.4rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .data-table tbody tr:hover {
+      background: radial-gradient(circle at left, rgba(255,255,255,0.04), transparent);
+  }
+  .cell-link a {
+      color: #fff;
+      text-decoration: none;
+  }
+  .cell-link a:hover {
+      text-decoration: underline;
+  }
+
+  .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 96px;
+      padding: 0.2rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  }
+  .status-pill--deployed {
+      background: linear-gradient(90deg,#6dffb8,#37d27e);
+      color: #02150b;
+  }
+  .status-pill--repair {
+      background: linear-gradient(90deg,#ffe08a,#ffb347);
+      color: #3a2100;
+  }
+  .status-pill--scrapped {
+      background: linear-gradient(90deg,#ff9a8b,#ff6a88);
+      color: #3a0505;
+  }
+
+  .table-empty {
+      text-align: center;
+      padding: 1.6rem 0.4rem;
+      opacity: .7;
+      font-size: 0.9rem;
+  }
+</style>
+
+<div class="devices-header">
+    <div class="devices-header-title">
+        <h1>Devices</h1>
+        <p>Manage all hardware assets in your inventory.</p>
+    </div>
+    <div class="devices-header-actions">
+        <a href="{% url 'device_export_csv' %}" class="link-ghost">Export CSV</a>
+        {% if request.user.is_superuser or request.user.role == "admin" or request.user.role == "staff" %}
+        <a href="{% url 'device_create' %}" class="btn-primary">+ Add device</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card card-xl">
+    <form method="get" class="device-filters">
+        <div class="field">
+            <label for="id_q">Hostname</label>
+            <input
+                type="text"
+                id="id_q"
+                name="q"
+                value="{{ q }}"
+                placeholder="Search hostname..."
+                class="dark-input"
+            >
+        </div>
+
+        <div class="field">
+            <label for="id_status">Status</label>
+            <select name="status" id="id_status" class="dark-input">
+                <option value="">All</option>
+                {% for code,label in devices.model.STATUS_CHOICES %}
+                    <option value="{{ code }}" {% if status == code %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="id_dept">Department</label>
+            <select name="dept" id="id_dept" class="dark-input">
+                <option value="">All</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if dept_id|default:'' == dept.id|stringformat:'s' %}selected{% endif %}>
+                        {{ dept.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="id_os">OS</label>
+            <input
+                type="text"
+                id="id_os"
+                name="os"
+                value="{{ os }}"
+                placeholder="Windows, Linux..."
+                class="dark-input"
+            >
+        </div>
+
+        <div class="field">
+            <label for="id_location">Location</label>
+            <input
+                type="text"
+                id="id_location"
+                name="location"
+                value="{{ location }}"
+                placeholder="IAS, FRA, QRO..."
+                class="dark-input"
+            >
+        </div>
+
+        <div class="filter-actions">
+            <button type="submit" class="btn-secondary">Filter</button>
+        </div>
+    </form>
+
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>Hostname</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Department</th>
+                <th>User</th>
+                <th>Location</th>
+                <th>IP</th>
+                <th>MAC</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for device in devices %}
+                <tr>
+                    <td class="cell-link">
+                        <a href="{% url 'device_detail' device.pk %}">
+                            {{ device.hostname }}
+                        </a>
+                    </td>
+                    <td>{{ device.get_device_type_display }}</td>
+                    <td>
+                        {% if device.status == 'deployed' %}
+                            <span class="status-pill status-pill--deployed">DEPLOYED</span>
+                        {% elif device.status == 'repair' %}
+                            <span class="status-pill status-pill--repair">IN REPAIR</span>
+                        {% elif device.status == 'scrapped' %}
+                            <span class="status-pill status-pill--scrapped">CASAT</span>
+                        {% else %}
+                            <span class="status-pill">{{ device.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ device.departament.name|default:"—" }}</td>
+                    <td>
+                        {% if device.assigned_user %}
+                            {{ device.assigned_user.username }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>{{ device.location|default:"—" }}</td>
+                    <td>{{ device.ip_address|default:"—" }}</td>
+                    <td>{{ device.mac_address|default:"—" }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8" class="table-empty">
+                        No devices found for the selected filters.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
